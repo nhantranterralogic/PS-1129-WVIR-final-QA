@@ -16,8 +16,8 @@ var MostPopularNumberOfItems = "5";
 var FeaturedVideoFormat = false;
 var MPslideshowURL = "/category/310438/slideshows";
 var VideoLandingPage = "";
-var zipcode = ['33902','34102','33950','34133','33936'];
-var nameZipcode = ['Fort Myers', 'Naples', 'Punta Gorda', 'Bonita Springs', 'Lehigh Acres'];
+var zipcode = ['22901','24402','22963'];
+var nameZipcode = ['Charlottesville', 'Staunton', 'Fluvanna'];
 var CDEVWVIR = {
   defaultImg: 'http://WBBH.images.worldnow.com/images/10871178_G.jpg',
 
@@ -1342,6 +1342,10 @@ Worldnow.EventMan.event('bodydone', function () {
       }
   }
   CDEVWVIR.footer();
+  // fix cover bug
+  if (wng_pageInfo.containerClass == "weather" )
+    $wn('#WNAffWVIR #WNColsAll #WNCols23-4').css('margin-top', '50px');
+  
 });
 
 $(document).ready(function(){
