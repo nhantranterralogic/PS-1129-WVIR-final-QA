@@ -187,6 +187,7 @@ header.simple-a li.tools .membercenter {
   float: none;
   background-color: transparent;
   color: #fff;
+  font-size: 11px;
 }
 
 header.simple-a li.tools .membercenter:before {

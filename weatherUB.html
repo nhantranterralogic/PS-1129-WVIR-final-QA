@@ -23,7 +23,15 @@
     </div>
   </div>
 </div>
-
+<style>
+#currentConditions > div.conditions > select{
+    display: inherit;
+    margin: 0 auto;
+    width: 200px;
+    font-size: 19px;
+    outline: none;
+}
+</style>
 <script type="text/javascript">
 if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
     var wnWxWSIinfo = {};
@@ -32,15 +40,14 @@ if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
 (function(){
 
   var zip = [
-    [33901,'Fort Myers'],
-    [34102,'Naples'],
-    [33950,'Punta Gorda'],
-    [33931,'Bonita Springs'],
-    [33936,'Lehigh Acres']
+    [22901,'Charlottesville'],
+    [24402,'Staunton'],
+    [22963,'Fluvanna']
   ],
-  buildTab = '<ul class="cc-tabs">';
+  buildTab = '<ul class="cc-tabs" style="display: none;">';
   buildInfo = '<ul class="cc-info">';
   $('#currentConditions .conditions').html('');
+  buildSelect = '<select class="cc-tabs">';
   function getTimeString(s){
     var nS = s,
       sf;
@@ -59,22 +66,31 @@ if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
   }
 
   $.each(zip, function(i, v) {
+    buildSelect += '<option value="'+ v[0] +'">'+ v[1] +'</option>';
     buildTab += '<li class="cc-tab"><a id="cc-tab-' + v[0] + '" data-zip="' + v[0] + '" data-city="' + v[1] + '" href="#cc-' + v[0] + '">' + v[1] + '</a></li>';
     buildInfo += '<li id="cc-' + v[0] + '" data-zip="' + v[0] + '" data-city="' + v[1] + '"></li>';
   });
 
   buildTab += '</ul>';
+  buildSelect += '</select>';
   buildInfo += '</ul>';
+  $('#currentConditions .conditions').append(buildSelect);
   $('#currentConditions .conditions').append(buildTab);
   $('#currentConditions .conditions').append(buildInfo);
   $('#currentConditions .conditions').tabs({
     active: 0
   });  
-  $('#currentConditions .cc-tab a').click(function(e){
+  // $('#currentConditions .cc-tab a').click(function(e){
+  //   if($(this).hasClass('ui-tabs-active')){
+  //     return;
+  //   }
+  //   CDEVweatherPage('http://data-services.wsi.com/200904-01/576347879/Weather/Report/',$(this).val()); 
+  // });
+  $('#currentConditions select').change(function(e){
     if($(this).hasClass('ui-tabs-active')){
       return;
     }
-    CDEVweatherPage('http://data-services.wsi.com/200904-01/576347879/Weather/Report/',$(this).attr('data-zip')); 
+    CDEVweatherPage('http://data-services.wsi.com/200904-01/576347879/Weather/Report/',$(this).val()); 
   });
   $('#currentConditions').insertBefore($('#WNCol23'));
 
@@ -126,6 +142,8 @@ if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
           if ( wnWxWSIinfo.hasOwnProperty(ziptoObj) ) {
               //Do this
               $('#cc-' + ziptoObj).html(wnWxWSIinfo[ziptoObj]['cuurentConditions']);
+              $wn('.cc-info > li').css('display', 'none');
+              $('#cc-' + ziptoObj).css('display', 'block');
               $('#meterologistForecast').html(wnWxWSIinfo[ziptoObj]['meterologistForecast']);
               $('#hourlyForecast .hourly-rail').html(wnWxWSIinfo[ziptoObj]['hourlyForecast']);
               $('#dailyForecast .daily-rail').html(wnWxWSIinfo[ziptoObj]['dailyForecast']);
@@ -179,6 +197,8 @@ if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
 
             wnWxWSIinfo[ziptoObj]['cuurentConditions'] = currentdailyDiv;
             $('#cc-' + zip).html(currentdailyDiv);
+            $wn('.cc-info > li').css('display', 'none');
+            $('#cc-' + zip).css('display', 'block');
 
             if( $city.attr('Name') === 'Fort Myers' && typeof wnWxWSIinfo.wnInfo.byline != "undefined"){
             
