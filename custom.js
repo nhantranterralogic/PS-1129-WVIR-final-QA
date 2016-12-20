@@ -159,7 +159,7 @@ var CDEVWVIR = {
       	$wn('#home-tsr').appendTo($wn('#col23-section'));
   	}
       	CDEVWVIR.searchTools('#col4-section','append');
-      	$wn('#col4-section').append('<div id="home-live-player" class="clearfix"><div class="header clearfix"><a href="/category/300756/nbc2-247-streaming-video">Live Stream</a></div><div><iframe src="http://livestream.com/accounts/1140/events/4105198/player?width=296&height=167&autoPlay=false&mute=false" width="296" height="167" frameborder="0" scrolling="no"></iframe></div><div><a href="/category/300756/nbc2-247-streaming-video">Click here for the large player.</a></div></div><script type=\'text/javascript\' src=\'http://api.worldnow.com/feed/v2.0/widgets/192034?alt=js&contextaffiliate=505\'></script>');
+      	$wn('#col4-section').append('<div id="home-live-player" class="clearfix"><div class="header clearfix"><a href="/category/300756/nbc2-247-streaming-video">NBC29 Live Streaming</a></div><div><iframe src="http://livestream.com/accounts/1140/events/4105198/player?width=296&height=167&autoPlay=false&mute=false" width="296" height="167" frameborder="0" scrolling="no"></iframe></div><div><a href="/category/300756/nbc2-247-streaming-video">Click here for the large player.</a></div></div><script type=\'text/javascript\' src=\'http://api.worldnow.com/feed/v2.0/widgets/192034?alt=js&contextaffiliate=505\'></script>');
         $wn('#divWNWidgetsContainer192034').appendTo('#col4-section');
   },
 
@@ -1263,7 +1263,7 @@ var CDEVWVIR = {
     //when scroll down with navbar is fixed
     $(document).scroll(function() {
       if ($('#WNColsAll .wn-sticky').css('position') == 'fixed'){
-        $('.wn-bg-page-nav nav.main ul.sf-navbar > li > a').first().html('<i class="fa fa-home" aria-hidden="true"></i>');
+        $('.wn-bg-page-nav nav.main ul.sf-navbar > li > a').first().html('<img width="50px" src="http://ftpcontent.worldnow.com/professionalservices/clients/wvir/images/nbc29.png"/>');
       } else if ($('#WNColsAll .wn-sticky').css('position') == 'static') {
         $('.wn-bg-page-nav nav.main ul.sf-navbar > li > a').first().html('Home');
       }

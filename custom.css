@@ -1543,6 +1543,7 @@ section.block.displaysize-20.rotate-a.five-main .item.hero summary {
 .wnBlock.displaySize.cdev-hbox2a .priority-1 .summary.abridged,
 .wnBlock.displaySize.cdev-hbox2a .priority-1 .summary.abridged p {
   font-size: 14px;
+  line-height: 1.4em;
 }
 
 .wnBlock.displaySize.cdev-hbox2a .displaySizeId-4 {
@@ -1576,7 +1577,7 @@ section.block.displaysize-20.rotate-a.five-main .item.hero summary {
 }
 
 .wnBlock.displaySize.cdev-hbox2a .timestamps {
-  display: none;
+  /*display: none;*/
 }
 
 
@@ -3486,7 +3487,11 @@ aside#WNAd46:nth-of-type(2) {
 }
 
 #DisplaySizeId11 #QSignupId-1802 {
-  padding: 15px;
+  /*padding: 15px;*/
+}
+
+#DisplaySizeId11 .memberinfo {
+  margin-top: 0px!important;
 }
 
 #allquicksignupfields-1802 > div.wnFormField.wnEmailInput {
@@ -3540,13 +3545,21 @@ aside#WNAd46:nth-of-type(2) {
   margin: 0px;
 }
 
+#DisplaySizeId11 .wnErrorMsg {
+  font-size: 12px;
+}
+
 #QSignupId-1802-EmailAddress {
   height: 30px;
   width: 100%;
 }
 
+#allquicksignupfields-1802 {
+  width: 70%;
+}
+
 #allquicksignupfields-1802>div.memberinfo>div.pmloginLabel.wnRequired>h4>div.wnMemberNonuser>label {
-  font-size: 20px;
+  font-size: 17px;
 }
 
 #allquicksignupfields-1802>div.wnItem.QSDistLists input {
@@ -3560,16 +3573,17 @@ aside#WNAd46:nth-of-type(2) {
 }
 
 #allquicksignupfields-1802>div.wnItem.QSDistLists {
-  margin-top: 80px;
+  margin-top: 60px;
 }
 
 #allquicksignupfields-1802>div.wnSubmit.wnFormField>input {
-  width: 140px;
-  height: 45px;
+  width: 125px;
+  height: 35px;
   background-color: #0f1c53;
   border: none;
   text-transform: uppercase;
   color: #fff;
   font-weight: bold;
   transition: 0.5s ease all;
+  margin-top: 0px;
 }
