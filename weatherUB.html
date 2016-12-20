@@ -1,0 +1,295 @@
+<div id="currentConditions"><div class="conditions"></div><div class="player">
+  <script type='text/javascript' src='http://api.worldnow.com/feed/v2.0/widgets/185211?alt=js&contextaffiliate=577'></script>
+
+</div></div>
+<div id="meterologistForecast"></div>
+<div class="wnBlock displaySize">
+  <div class="hourly-forecast-wrapper clearfix">
+    <div class="wnGroup contentGroup collapsible closed">
+      <div class="wnItem header"><h3><span class="text siteDefault">Hourly Forecast</span><div class="wnClear"></div></h3></div>
+      <div id="hourlyForecast" class="hourly-group jcarousel clearfix">
+        <ul class="hourly-rail"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="wnBlock displaySize">
+  <div class="daily-forecast-wrapper clearfix">
+    <div class="wnGroup contentGroup collapsible closed">
+      <div class="wnItem header"><h3><span class="text siteDefault">Daily Forecast</span><div class="wnClear"></div></h3></div>
+      <div id="dailyForecast" class="daily-group jcarousel clearfix">
+        <ul class="daily-rail"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+if (typeof wnWxWSIinfo === 'undefined' || wnWxWSIinfo === null) {
+    var wnWxWSIinfo = {};
+}
+
+(function(){
+
+  var zip = [
+    [33901,'Fort Myers'],
+    [34102,'Naples'],
+    [33950,'Punta Gorda'],
+    [33931,'Bonita Springs'],
+    [33936,'Lehigh Acres']
+  ],
+  buildTab = '<ul class="cc-tabs">';
+  buildInfo = '<ul class="cc-info">';
+  $('#currentConditions .conditions').html('');
+  function getTimeString(s){
+    var nS = s,
+      sf;
+
+    if(s.charAt(0) === '0'){
+      ns = s.slice(1);
+      //return ns;
+    }
+
+    sf = s.slice(-2);
+    ns = ns.slice(0, ns.indexOf(sf));
+    ns = ns.slice(0, ns.lastIndexOf(':'));
+    ns = ns + ' ' + sf; 
+
+    return ns;
+  }
+
+  $.each(zip, function(i, v) {
+    buildTab += '<li class="cc-tab"><a id="cc-tab-' + v[0] + '" data-zip="' + v[0] + '" data-city="' + v[1] + '" href="#cc-' + v[0] + '">' + v[1] + '</a></li>';
+    buildInfo += '<li id="cc-' + v[0] + '" data-zip="' + v[0] + '" data-city="' + v[1] + '"></li>';
+  });
+
+  buildTab += '</ul>';
+  buildInfo += '</ul>';
+  $('#currentConditions .conditions').append(buildTab);
+  $('#currentConditions .conditions').append(buildInfo);
+  $('#currentConditions .conditions').tabs({
+    active: 0
+  });  
+  $('#currentConditions .cc-tab a').click(function(e){
+    if($(this).hasClass('ui-tabs-active')){
+      return;
+    }
+    CDEVweatherPage('http://data-services.wsi.com/200904-01/576347879/Weather/Report/',$(this).attr('data-zip')); 
+  });
+  $('#currentConditions').insertBefore($('#WNCol23'));
+
+  function CDEVweatherPage(prefix,zip){
+    var url = prefix + zip,
+      ziptoObj = zip.toString(),
+      wnForecast = '',
+      wnForecastTitle = '';
+
+    function setInteraction(){
+      $('.details-link').click(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        $(this).closest('.daily').find('.details').toggleClass('appears');
+      });
+      
+      $('#dailyForecast').append('<a class="arrow day-arrow left jcarousel-control jcarousel-control-prev hidden" href="javascript:void(0);"></a><a class="arrow day-arrow right jcarousel-control jcarousel-control-next" href="javascript:void(0);""></a>');   
+      $('#dailyForecast').jcarousel();
+      
+      $('#dailyForecast').find('.jcarousel-control-prev')
+        .on('jcarouselcontrol:active', function(){
+          $(this).removeClass('hidden');
+        }).on('jcarouselcontrol:inactive', function(){
+          $(this).addClass('hidden');
+        }).jcarouselControl({
+          target: '-=1'
+        });
+      $('#dailyForecast').find('.jcarousel-control-next')
+        .on('jcarouselcontrol:active', function(){
+          $(this).removeClass('hidden');
+      }).on('jcarouselcontrol:inactive', function(){
+          $(this).addClass('hidden');
+      }).jcarouselControl({
+        target: '+=1'
+      });       
+    }
+    /*
+    if($wn('.wnDVWxFullForecast').length > 0){
+      wnForecastTitle = $('.wnDVWxFullForecast .wnDSHeader h3 span').text();
+      wnForecast = $('.wnDVWxFullForecast .wnWxRegion.wnWxPrimary .wnWxCurrentForecast').html();
+    }
+    */
+    WNHttpRequestManager.makeRequest(url, {
+      onSuccess: function() {
+        console.log('success');
+          // Load API stories
+
+          if ( wnWxWSIinfo.hasOwnProperty(ziptoObj) ) {
+              //Do this
+              $('#cc-' + ziptoObj).html(wnWxWSIinfo[ziptoObj]['cuurentConditions']);
+              $('#meterologistForecast').html(wnWxWSIinfo[ziptoObj]['meterologistForecast']);
+              $('#hourlyForecast .hourly-rail').html(wnWxWSIinfo[ziptoObj]['hourlyForecast']);
+              $('#dailyForecast .daily-rail').html(wnWxWSIinfo[ziptoObj]['dailyForecast']);
+              setInteraction();
+              return;
+          } else {
+            wnWxWSIinfo[ziptoObj] = {};            
+          }
+
+          var $data = $wn(this.response.responseXML),
+            $city = $data.find('City'),
+            $cO = $data.find('CurrentObservation'),
+            $dF = $data.find('DailyForecast').find('Day:lt(8)'),
+            $hF = $data.find('HourlyForecast').find('Hour:lt(8)'),
+            $tF = $data.find('DailyForecast').find('Day:eq(0)'),
+            $cH = $data.find('HourlyForecast').find('Hour:eq(0)'),
+            monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            phrase = ($tF.attr('PhraseDay').length > 1) ? $tF.attr('PhraseDay') : $tF.attr('PhraseNight'),
+            currentdailyDiv = '',
+            hourlyDiv = '',
+            dailyDiv = '',
+            detailDiv = '',
+            meterologistForecast = '';
+
+            currentdailyDiv += '<ul class="main-info cleafix">';   
+              currentdailyDiv += '<li class="wx-icon" style="background-image:url(http://ftpcontent.worldnow.com/wncustom/wx_icons/wsi50/' + $cO.attr('IconCode') + '.png)">' + $cO.attr('Sky') + '</li>';
+              currentdailyDiv += '<li class="sky-condition">' + $cO.attr('Sky') + '</li>';
+              currentdailyDiv += '<li class="current-temp">' + $cO.attr('TempF') + '&deg;</li>';
+              currentdailyDiv += '<li class="today-lo">' + $tF.attr('LoTempF') + '&deg;</li>'; 
+              currentdailyDiv += '<li class="today-hi">' + $tF.attr('HiTempF') + '&deg;</li>';                
+              currentdailyDiv += '<li class="precip-chance">' + $tF.attr('PrecipChance') + '&#37;</li>';          
+            currentdailyDiv += '</ul>';
+            currentdailyDiv += '<ul class="secondary-info cleafix">'; 
+              currentdailyDiv += '<li class="row-1">';
+                currentdailyDiv += '<div class="feels-like">' + $cO.attr('FeelsLikeF') + '&deg;</div>';
+                currentdailyDiv += '<div class="sunrise">' + getTimeString($tF.attr('Sunrise')) + '</div>';
+              currentdailyDiv += '</li>';
+              currentdailyDiv += '<li class="row-2">';
+                currentdailyDiv += '<div class="humidity">' + $cH.attr('RelHumidity') + '&#37;</div>';
+                currentdailyDiv += '<div class="sunset">' + getTimeString($tF.attr('Sunset')) + '</div>';
+              currentdailyDiv += '</li>';
+              currentdailyDiv += '<li class="row-3">';
+                currentdailyDiv += '<div class="uv-index">' + $tF.attr('UvIdx') + '&nbsp;' + $tF.attr('UvDescr') + '</div>';
+                currentdailyDiv += '<div class="moonrise">' + getTimeString($tF.attr('Moonrise')) + '</div>';
+              currentdailyDiv += '</li>';  
+              currentdailyDiv += '<li class="row-4">';
+                currentdailyDiv += '<div class="wind-speed">' + $cO.attr('WndDirCardinal') + ' at ' + $cO.attr('WndSpdMph') + ' mph</div>';
+                currentdailyDiv += '<div class="moonset">' + getTimeString($tF.attr('Moonset')) + '</div>';
+              currentdailyDiv += '</li>';                                           
+            currentdailyDiv += '</ul>';
+
+            wnWxWSIinfo[ziptoObj]['cuurentConditions'] = currentdailyDiv;
+            $('#cc-' + zip).html(currentdailyDiv);
+
+            if( $city.attr('Name') === 'Fort Myers' && typeof wnWxWSIinfo.wnInfo.byline != "undefined"){
+            
+              meterologistForecast += '<div class="todays-forecast clearfix">';
+              meterologistForecast += '<h3>' + wnWxWSIinfo.wnInfo.header + '</h3>';
+              meterologistForecast +='<div class="bylines">';
+              meterologistForecast +='<img class="profile-image" src="' + wnWxWSIinfo.wnInfo.byline.profileimage + '">';
+              meterologistForecast +='<div class="profile-name">' + wnWxWSIinfo.wnInfo.byline.firstname + ' ' + wnWxWSIinfo.wnInfo.byline.lastname + '</div>';
+              meterologistForecast +='<div class="profile-title">' + wnWxWSIinfo.wnInfo.byline.title + '</div>';
+              meterologistForecast +='<div class="contact-info"><a class="fb" href="http://www.facebook.com/' + wnWxWSIinfo.wnInfo.byline.socialnetworksinfo.facebook + '" target="_blank">Facebook</a><a class="twitter" href="http://www.twitter.com/' + wnWxWSIinfo.wnInfo.byline.socialnetworksinfo.twitter + '" target="_blank">Twitter</a><a class="email" href="mailto:' + wnWxWSIinfo.wnInfo.byline.emailaddress + '" target="_blank">Email</a></div>';
+              meterologistForecast +='</div>';
+              meterologistForecast += '<div class="info">';
+              meterologistForecast += '<h5>LAST UPDATED: ' + wnWxWSIinfo.wnInfo.lastupdatedate + '</h5>';
+              meterologistForecast += wnWxWSIinfo.wnInfo.currentconditions;
+              meterologistForecast += '</div>';
+              meterologistForecast +='</div>';
+
+            } else {
+              meterologistForecast += '<div class="todays-forecast clearfix"><h3>TODAY\'S FORECAST</h3>' + phrase + '</div></div>';
+            }
+            wnWxWSIinfo[ziptoObj]['meterologistForecast'] = meterologistForecast;
+            $('#meterologistForecast').html(meterologistForecast);
+
+            $hF.each(function(i){
+              var $this = $wn(this),
+                d = new Date($this.attr('ValidDateLocal')),
+                dd,
+                firstClass = '';
+
+              d = d.toLocaleTimeString();
+              dd = d.replace(/[0-9]/g, '').replace(/:/g, '').replace(/ /g, '');
+              d = d.split(":")[0];
+              d = d + dd;
+
+              if(i === 0){
+                firstClass = 'active';
+              }
+
+              hourlyDiv += '<li id="hourly-' + (i+1) + '" class="hourly ' + firstClass + ' clearfix" data-hournum="' + $this.attr('HourNum') + '">';
+                hourlyDiv += '<div class="time">' + d + '</div>';
+                hourlyDiv += '<div class="precip-chance">' + $this.attr('PrecipChance') + '&#37;</div>';
+                hourlyDiv += '<div class="wx-icon" style="background-image:url(http://ftpcontent.worldnow.com/wncustom/wx_icons/wsi40/' + $this.attr('IconCode') + '.png)">' + $this.attr('SkyMedium') + '</div>';
+                hourlyDiv += '<div class="temperature">' + $this.attr('TempF') + '&deg;</div>';
+                hourlyDiv += '<div class="wind-speed clearfix">' + $this.attr('WndDirCardinal') + '&nbsp;' + $this.attr('WndSpdMph') + ' mph</div>';          
+              hourlyDiv += '</li>';
+            });           
+
+            wnWxWSIinfo[ziptoObj]['hourlyForecast'] = hourlyDiv;
+            $('#hourlyForecast .hourly-rail').html(hourlyDiv);             
+
+            $dF.each(function(i){
+              var $this = $wn(this),
+                d = new Date($this.attr('ValidDateUtc')),
+                firstClass = '';
+
+              if(i === 0){
+                return true;
+              }
+
+              if(i === 1){
+                firstClass = 'active';
+              }
+
+              dailyDiv += '<li id="daily-' + i + '" class="daily ' + firstClass + '" data-daynum="' + $this.attr('DayNum') + '">';
+                dailyDiv += '<div class="quick">';
+                  dailyDiv += '<div class="day">' + $this.attr('DayOfWk') + '</div>';
+                  dailyDiv += '<div class="wx-icon" style="background-image:url(http://ftpcontent.worldnow.com/wncustom/wx_icons/wsi50/' + $this.attr('IconCode') + '.png)">' + $this.attr('SkyText') + '</div>';
+                  dailyDiv += '<div class="sky-condition">' + $this.attr('SkyText') + '</div>';
+                  dailyDiv += '<div class="temperature"><span class="hi-temp">HI ' + $this.attr('HiTempF') +'&deg;</span>&nbsp;<span class="lo-temp">LO ' + $this.attr('LoTempF') + '&deg;</span></div>';
+                  dailyDiv += '<a href="#" class="details-link">Details</a>';
+                dailyDiv += '</div>';
+                dailyDiv += '<div class="details">';
+                  dailyDiv += '<div class="day">' + $this.attr('DayOfWk') + '</div>';
+                  dailyDiv += '<div class="wind-speed clearfix">' + $this.attr('WndDirCardinal') + ' ' + $this.attr('WndSpdMph') + ' mph</div>';
+                  dailyDiv += '<div class="humidity clearfix"><span class="name">Humidity:</span><span class="value">' + $this.attr('RelHumidity') + '&#37;</span></div>';
+                  dailyDiv += '<div class="sunrise clearfix"><span class="name">Sunrise:</span><span class="value">' + getTimeString($this.attr('Sunrise')) + '</span></div>';
+                  dailyDiv += '<div class="sunset clearfix"><span class="name">Sunset:</span><span class="value">' + getTimeString($this.attr('Sunset')) + '</span></div>';
+                  dailyDiv += '<a href="#" class="details-link">Less Details</a>';                  
+                dailyDiv += '</div>';
+              dailyDiv += '</li>';  
+            });
+            
+            wnWxWSIinfo[ziptoObj]['dailyForecast'] = dailyDiv;
+            $('#dailyForecast .daily-rail').html(dailyDiv);
+            setInteraction();
+      },
+      onError: function(){
+        console.log('error');
+        return;
+      }
+    });
+
+  }
+
+$.getJSON('/weather?clienttype=weather.json')
+      .done(function(data) {
+        console.log('ready');
+        wnWxWSIinfo.wnInfo = {};
+        wnWxWSIinfo.wnInfo.header = data.header;
+        wnWxWSIinfo.wnInfo.currentconditions = data.currentconditions;
+        wnWxWSIinfo.wnInfo.byline = data.byline;
+        wnWxWSIinfo.wnInfo.lastupdatedate = data.lastupdatedate;
+        CDEVweatherPage('http://data-services.wsi.com/200904-01/576347879/Weather/Report/',zip[0][0]); 
+      })
+      .fail(function(data) {
+          console.log('error');
+      //alert( "error" );
+      })
+      .always(function(data) {
+
+      });
+
+})();
+</script>
